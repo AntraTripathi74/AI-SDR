@@ -76,7 +76,3 @@ This workflow is designed to run on n8n. To use it, you will need to:
 ## 🤝 Contributing
 
 Feel free to fork this repository, open issues for suggestions or bugs, and submit pull requests to enhance the workflow!
-
-## 📄 License
-
-This project is licensed under the MIT License.
