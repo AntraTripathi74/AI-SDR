@@ -96,7 +96,7 @@
     },
     {
       "parameters": {
-        "url": "=https://www.googleapis.com/customsearch/v1?q=SaaS+founder+India+site%3Alinkedin.com%2Fin%2F&key=AIzaSyDJRTSsmcZU22oI8sbkx-UdRpBWLIdtthU&cx=e46d91bb4b7bd4d74&num=2&start={{$json[\"start\"]}}",
+        "url": "=https://www.googleapis.com/customsearch/v1?q=SaaS+founder+India+site%3Alinkedin.com%2Fin%2F&key=YOUR-API-KEY&cx=e46d91bb4b7bd4d74&num=2&start={{$json[\"start\"]}}",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -417,7 +417,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyD8xqXm0TaQxLfsbRCvbjNVIQr_maCT22g",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=YOUR-API-KEY",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -588,7 +588,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyD8xqXm0TaQxLfsbRCvbjNVIQr_maCT22g",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=YOUR-API-KEY",
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "json",
