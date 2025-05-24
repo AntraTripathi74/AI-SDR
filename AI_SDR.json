@@ -1,0 +1,1048 @@
+{
+  "name": "AI SDR",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "05046920-8fe1-4d56-86e5-70571a7cfbc7",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "linkedin_url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1220,
+        0
+      ],
+      "id": "d70ca602-9977-4d42-84f5-4ef64e5b516a",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1MhKaxeU7JC1qSu3VSMkeVrUqQZc01Gn6wpzVrfyBqig",
+          "mode": "list",
+          "cachedResultName": "Lead Information",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MhKaxeU7JC1qSu3VSMkeVrUqQZc01Gn6wpzVrfyBqig/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MhKaxeU7JC1qSu3VSMkeVrUqQZc01Gn6wpzVrfyBqig/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "=Name",
+              "lookupValue": "={{ $json.Name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2100,
+        0
+      ],
+      "id": "630d14b8-8334-4c46-a098-f21fde86aec3",
+      "name": "Google Sheets3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "INRy7e6p6UfFW1kn",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "Name, Title, LinkedIn URL, Company Name, Company URL, Industry, Location, Phone no. , Email, [\"Phone no. \"]",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        0
+      ],
+      "id": "3bd91d07-3fab-4f59-b812-b026ad3d2301",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// // Define a reasonable upper limit for the random startIndex\n// const maxStartIndex = 200; // Adjust this as needed\n\n// // Generate a random startIndex (multiple of 10 + 1)\n// const randomPage = Math.floor(Math.random() * (maxStartIndex / 10));\n// const startIndex = (randomPage * 10) + 1;\n\n// // Output the random startIndex\n// return [{ json: { startIndex: startIndex } }];\n\n// Set and increment start manually — simulate stored state\nconst lastStart = 1; // <-- Replace with your current start value\nconst nextStart = lastStart + 10;\n\nreturn [\n  {\n    json: {\n      start: nextStart\n    }\n  }\n];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        0
+      ],
+      "id": "480de028-fe32-4463-a279-14b95358f4a1",
+      "name": "CSE"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/customsearch/v1?q=SaaS+founder+India+site%3Alinkedin.com%2Fin%2F&key=AIzaSyDJRTSsmcZU22oI8sbkx-UdRpBWLIdtthU&cx=e46d91bb4b7bd4d74&num=2&start={{$json[\"start\"]}}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "=start {{ $json.startIndex }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        0
+      ],
+      "id": "2e57042c-15b1-4cec-a661-8f73d8d550f4",
+      "name": "HTTP Request (for searching profiles)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over the input items and extract LinkedIn URL and title\nconst linkedInProfiles = [];\nfor (const item of $input.all()) {\n  if (item.json.items && Array.isArray(item.json.items)) {\n    for (const searchResult of item.json.items) {\n      if (searchResult.link && searchResult.link.includes(\"linkedin.com/in/\")) {\n        linkedInProfiles.push({\n          url: searchResult.link,\n          title: searchResult.title,\n        });\n      }\n    }\n  }\n}\n\n// Return the array of extracted LinkedIn profiles\nreturn linkedInProfiles.map(profile => ({ json: profile }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        580,
+        0
+      ],
+      "id": "41c69a83-c44e-4ce4-b5b9-823d4fb70806",
+      "name": "Function for Extracting URLs"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1IkFVk-GXYAAP_HuJi1euxAqFyww5w4Kp2fYCc_111gM",
+          "mode": "list",
+          "cachedResultName": "Contact information",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkFVk-GXYAAP_HuJi1euxAqFyww5w4Kp2fYCc_111gM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkFVk-GXYAAP_HuJi1euxAqFyww5w4Kp2fYCc_111gM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "linkedin_url": "={{ $json.url }}",
+            "title": "={{ $json.title }}"
+          },
+          "matchingColumns": [
+            "linkedin_url"
+          ],
+          "schema": [
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        780,
+        0
+      ],
+      "id": "50482e5f-c4a9-4ded-ae39-8ba9ebe8e858",
+      "name": "Contact Information",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "INRy7e6p6UfFW1kn",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1IkFVk-GXYAAP_HuJi1euxAqFyww5w4Kp2fYCc_111gM",
+          "mode": "list",
+          "cachedResultName": "Contact information",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkFVk-GXYAAP_HuJi1euxAqFyww5w4Kp2fYCc_111gM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkFVk-GXYAAP_HuJi1euxAqFyww5w4Kp2fYCc_111gM/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "linkedin_url",
+              "lookupValue": "={{ $json.linkedin_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1000,
+        0
+      ],
+      "id": "600f06fd-4bb0-4316-b03d-b3f353b56ae6",
+      "name": "Read",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "INRy7e6p6UfFW1kn",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://li-data-scraper.p.rapidapi.com/get-profile-data-by-url?url={{ encodeURIComponent($json.linkedin_url) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-RapidAPI-Key",
+              "value": "c8682aefa3msh94417c575c5da44p11c29fjsndd771999ea29"
+            },
+            {
+              "name": "X-RapidAPI-Host",
+              "value": "li-data-scraper.p.rapidapi.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "1119dc09-4c4c-4c42-8b53-3d581d661152",
+      "name": "HTTP Request (scrap linkedin profiles)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const extractedDetails = [];\n\n// Loop through each item received from the HTTP Request node (RapidAPI response)\nfor (const item of $input.all()) {\n  const profileData = item.json; // The entire profile JSON from RapidAPI\n\n  // Extracting requested details\n  const firstName = profileData.firstName || '';\n  const lastName = profileData.lastName || '';\n  const fullName = `${firstName} ${lastName}`.trim(); // Combine first and last names\n  const linkedInUsername = profileData.username || '';\n  const linkedInProfileUrl = linkedInUsername ? `https://www.linkedin.com/in/${linkedInUsername}` : '';\n  // Get current company details (assuming 'position[0]' is the primary/current position)\n  const currentPosition = profileData.position && profileData.position.length > 0 ? profileData.position[0] : {};\n  const companyName = currentPosition.companyName || '';\n  const companyURL = currentPosition.companyURL || '';\n  const companyIndustry = currentPosition.companyIndustry || '';\n  const currentTitle = currentPosition.title || '';\n  const location = profileData.geo && profileData.geo.full ? profileData.geo.full : '';\n  const randomPhone = `91${Math.floor(1000000000 + Math.random() * 9000000000)}`; \n  // Generate a dummy email using parts of the name or a static domain\n  const dummyEmail = `${firstName.toLowerCase().replace(/[^a-z0-9]/g, '')}.${lastName.toLowerCase().replace(/[^a-z0-9]/g, '')}@example.com`;\n  // Note: Phone and Email are typically NOT available from LinkedIn APIs due to privacy.\n  // const phoneNumber = ''; // Not found in sample output\n  // const email = '';       // Not found in sample output\n\n  extractedDetails.push({\n    fullName: fullName,\n    companyName: companyName,\n    currentTitle: currentTitle,\n    linkedInUrl: linkedInProfileUrl,\n    companyURL: companyURL,\n    companyIndustry: companyIndustry,\n    location: location,\n    \n    phoneNumber: randomPhone, \n    email: dummyEmail              \n  });\n}\n\n// Return the extracted data, formatted for the next node (e.g., Google Sheets)\nreturn extractedDetails.map(data => ({ json: data }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1660,
+        0
+      ],
+      "id": "fa0064d7-dcab-4af8-8e5f-9fbf390b683a",
+      "name": "Function for extracting profile data"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1MhKaxeU7JC1qSu3VSMkeVrUqQZc01Gn6wpzVrfyBqig",
+          "mode": "list",
+          "cachedResultName": "Lead Information",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MhKaxeU7JC1qSu3VSMkeVrUqQZc01Gn6wpzVrfyBqig/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MhKaxeU7JC1qSu3VSMkeVrUqQZc01Gn6wpzVrfyBqig/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.fullName }}",
+            "Title": "={{ $json.currentTitle }}",
+            "Company Name": "={{ $json.companyName }}",
+            "LinkedIn URL": "={{ $json.linkedInUrl }}",
+            "Company URL": "={{ $json.companyURL }}",
+            "Industry": "={{ $json.companyIndustry }}",
+            "Location": "={{ $json.location }}",
+            "Phone no. ": "={{ $json.phoneNumber }}",
+            "Email": "={{ $json.email }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn URL",
+              "displayName": "LinkedIn URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone no. ",
+              "displayName": "Phone no. ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1880,
+        0
+      ],
+      "id": "51764533-396b-45e8-a624-3dc15b623adb",
+      "name": "Lead Information",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "INRy7e6p6UfFW1kn",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyD8xqXm0TaQxLfsbRCvbjNVIQr_maCT22g",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "json",
+        "body": "=\n\n{\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"You are an expert lead qualification agent. Your task is to evaluate a prospect based on their personal and company details and determine qualification according to these strict rules:\\n\\nQualification Criteria:\\n1.  **Location Check:** The company's primary operating country must be one of the following: \\\"India\\\", \\\"Sri Lanka\\\", \\\"Bangladesh\\\", \\\"UAE\\\".\\n2.  **Industry Check:** The company's primary business industry must be one of the following: \\\"Venture Capital & Private Equity\\\", \\\"Computer Software\\\", \\\"Health and Fitness\\\", \\\"Information Technology & Services\\\", \\\"Sales\\\", \\\"Marketing\\\". Additionally, any business that is clearly SaaS-related and could reasonably use Google Cloud services (e.g., for infrastructure, data analytics, AI, etc.) should also be considered a match for this rule.\\n\\nBased on these rules, determine the qualification:\\n-   **QUALIFIED:** if the Industry Check (Rule 2) is met  or industry rule and location rule both met.\\n-   **UNQUALIFIED:** If the Industry Check (Rule 2) is NOT met, AND the Location Check (Rule 1) is NOT met.\\n-   **UNCERTAIN:** If either the Company Industry or Location data is missing, unclear, or not directly verifiable from the provided text.\\n\n\\nYour output MUST be a JSON object along with the provided inputed data and add it with two more keys: \\\"qualification\\\" and \\\"reason\\\".\\n\n\\nExample for QUALIFIED (Industry Match, Location Not Match): {\\\"qualification\\\": \\\"QUALIFIED\\\", \\\"reason\\\": \\\"Industry matches 'Computer Software'.\\\"}\\nExample for UNQUALIFIED (Both Fail): {\\\"qualification\\\": \\\"UNQUALIFIED\\\", \\\"reason\\\": \\\"Industry not in the target list and location not in target countries.\\\"}\\nExample for UNCERTAIN (Missing Data): {\\\"qualification\\\": \\\"UNCERTAIN\\\", \\\"reason\\\": \\\"Missing clear industry data.\\\"}\\n\\nHere is the Lead\\'s Profile Data:\\nFull Name: {{ $json.Name }}\\nTitle: {{ $json.Title }}\\nCompany Name: {{ $json[\"Company Name\"] }}\\nCompany URL:{{ $json[\"Company URL\"] }} \\nEmail:{{ $json.Email }}\\nPhone no.:{{ $json['[\"Phone no. \"]'] }}\\nIndustry: {{ $json.Industry }}\\nLocation: {{ $json.Location }} \"\n        }\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0.7,\n    \"top_p\": 0.95,\n    \"max_output_tokens\": 200\n  }\n}",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        0
+      ],
+      "id": "4fe51727-abda-4a33-8e03-41dd1e07c269",
+      "name": "HTTP Request (Gemini for lead qualification)",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  const rawText = item.json?.candidates?.[0]?.content?.parts?.[0]?.text;\n  const clean = rawText.replace(/```json\\n?/, '').replace(/\\n```/, '').trim();\n  const parsed = JSON.parse(clean);\n  item.json = parsed;\n}\n\nreturn $input.all();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        0
+      ],
+      "id": "7d7b6d35-35b7-431c-9a92-80beb75c4195",
+      "name": "Function for extracting data"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Mc30uW7KuYbrCLRy4emHOnquymTpsnqiQQL0b9gq-KM",
+          "mode": "list",
+          "cachedResultName": "Qualified Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mc30uW7KuYbrCLRy4emHOnquymTpsnqiQQL0b9gq-KM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mc30uW7KuYbrCLRy4emHOnquymTpsnqiQQL0b9gq-KM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json[\"Full Name\"] }}",
+            "Title": "={{ $json.Title }}",
+            "Phone no.": "={{ $json[\"Phone no.\"] }}",
+            "Email": "={{ $json.Email }}",
+            "Industry": "={{ $json.Industry }}",
+            "Company Name": "={{ $json[\"Company Name\"] }}",
+            "Company URL": "={{ $json[\"Company URL\"] }}"
+          },
+          "matchingColumns": [
+            "Name"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone no.",
+              "displayName": "Phone no.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Information about Company",
+              "displayName": "Information about Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3020,
+        0
+      ],
+      "id": "bf28dcfa-5303-4f0a-a0c9-a0e5b0c962e6",
+      "name": "Qualified leads",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "INRy7e6p6UfFW1kn",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyD8xqXm0TaQxLfsbRCvbjNVIQr_maCT22g",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "json",
+        "body": "=  {   \"contents\": [     {       \"parts\": [         {           \"text\": \"You are a researcher who can access the company linkedin url to find out something specific about their business, industry, or a recent initiative - this shows you've done your research. Output rules- Generate the text in 1-2 line along with the full name and email. write the full name and email in json format so that it can be passed on to google sheets. \\nHere is the Lead\\'s Profile Data:\\nFull Name: {{ $json.Name }}\\nTitle: {{ $json.Title }}\\nCompany Name: {{ $json[\"Company Name\"] }}\\nCompany URL:{{ $json[\"Company URL\"] }} \\nEmail:{{ $json.Email }}\\nPhone no.:{{ $json['Phone no.'] }}\\nIndustry: {{ $json.Industry }}\\n\"         }       ]     }   ],   \"generationConfig\": {     \"temperature\": 0.7,     \"top_p\": 0.95,     \"max_output_tokens\": 200   } }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3240,
+        0
+      ],
+      "id": "3595fac7-9b97-4ad5-8d6c-0815428d5947",
+      "name": "HTTP Request (Company profiling)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  const rawText = item.json?.candidates?.[0]?.content?.parts?.[0]?.text || \"\";\n\n  // Split at the JSON block (```)\n  const [description, jsonBlockRaw] = rawText.split(/```json|\\n```/);\n\n  // Extract JSON string safely\n  const jsonMatch = jsonBlockRaw?.match(/\\{[\\s\\S]*?\\}/);\n\n  let parsed = {};\n  if (jsonMatch && jsonMatch[0]) {\n    try {\n      parsed = JSON.parse(jsonMatch[0]);\n    } catch (err) {\n      parsed = { error: \"Failed to parse JSON\", details: err.message };\n    }\n  }\n\n  results.push({\n    json: {\n      description: description?.trim(),\n      fullName: parsed[\"Full Name\"] || parsed[\"fullName\"] || null,\n      email: parsed[\"Email\"] || parsed[\"email\"] || null\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3460,
+        0
+      ],
+      "id": "efd6f519-e6e7-4086-b2bc-a0396e00b969",
+      "name": "Function for data extraction"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Mc30uW7KuYbrCLRy4emHOnquymTpsnqiQQL0b9gq-KM",
+          "mode": "list",
+          "cachedResultName": "Qualified Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mc30uW7KuYbrCLRy4emHOnquymTpsnqiQQL0b9gq-KM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mc30uW7KuYbrCLRy4emHOnquymTpsnqiQQL0b9gq-KM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Information about Company": "={{ $json.description }}",
+            "Email": "={{ $json.email }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone no.",
+              "displayName": "Phone no.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Company URL",
+              "displayName": "Company URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Information about Company",
+              "displayName": "Information about Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3680,
+        0
+      ],
+      "id": "8cacee5e-b5ac-490e-874a-0846452f5957",
+      "name": "Append sheet with company info",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "INRy7e6p6UfFW1kn",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Mc30uW7KuYbrCLRy4emHOnquymTpsnqiQQL0b9gq-KM",
+          "mode": "list",
+          "cachedResultName": "Qualified Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mc30uW7KuYbrCLRy4emHOnquymTpsnqiQQL0b9gq-KM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Mc30uW7KuYbrCLRy4emHOnquymTpsnqiQQL0b9gq-KM/edit#gid=0"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically",
+              "readRowsUntil": "firstEmptyRow"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3900,
+        0
+      ],
+      "id": "c48ceba7-0da3-455a-b04d-82654a979393",
+      "name": "Updated qualified leads",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "INRy7e6p6UfFW1kn",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "hello!!",
+        "emailType": "text",
+        "message": "=Hi {{ $json.Name }},\ntest email",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        4120,
+        0
+      ],
+      "id": "0eda7f80-5586-4652-a587-17745a79b517",
+      "name": "Gmail",
+      "webhookId": "76d689b5-d86e-4131-833c-86dae48109de",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iLNeR3nwzO7sREwp",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When clicking ‘Test workflow’": [
+      {
+        "json": {}
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "CSE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (scrap linkedin profiles)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets3": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (Gemini for lead qualification)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CSE": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (for searching profiles)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (for searching profiles)": {
+      "main": [
+        [
+          {
+            "node": "Function for Extracting URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function for Extracting URLs": {
+      "main": [
+        [
+          {
+            "node": "Contact Information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Information": {
+      "main": [
+        [
+          {
+            "node": "Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (scrap linkedin profiles)": {
+      "main": [
+        [
+          {
+            "node": "Function for extracting profile data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function for extracting profile data": {
+      "main": [
+        [
+          {
+            "node": "Lead Information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Information": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (Gemini for lead qualification)": {
+      "main": [
+        [
+          {
+            "node": "Function for extracting data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function for extracting data": {
+      "main": [
+        [
+          {
+            "node": "Qualified leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualified leads": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (Company profiling)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (Company profiling)": {
+      "main": [
+        [
+          {
+            "node": "Function for data extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function for data extraction": {
+      "main": [
+        [
+          {
+            "node": "Append sheet with company info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append sheet with company info": {
+      "main": [
+        [
+          {
+            "node": "Updated qualified leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Updated qualified leads": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "062c69e0-10e4-4443-a38c-e0d1a3e8dded",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ba6991d1e7494226e51a1e75edb2e79d16cbb4757f3587ba5643db15ed9ac2d9"
+  },
+  "id": "vv484j4pwcOHGV8K",
+  "tags": []
+}
